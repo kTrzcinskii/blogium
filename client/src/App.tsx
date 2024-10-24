@@ -1,9 +1,12 @@
+import { Button } from "./components/ui/button"
+
 function App() {
 
   return (
     <>
-      <div>
-        <p>Hello from blogium frontend</p>
+      <div className="w-full h-screen">
+        <p className="text-4xl">Hello from blogium frontend</p>
+        <Button>From shadcn</Button>
       </div>
     </>
   )
