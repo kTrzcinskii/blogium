@@ -21,10 +21,11 @@ const createPost = async (
     formData.append('username', data.username);
     formData.append('content', data.content);
     if (data.image && data.image.length > 0) {
-        formData.append('image', data?.image[0]);
+        formData.append('image', data.image[0]);
+        console.log(data.image[0]);
     }
     if (data.avatarUrl) {
-        formData.append('avatar_url', data.avatarUrl);
+        formData.append('avatar_path', data.avatarUrl);
     }
 
     const response = await axios.post<ICreatePostResponse>(
