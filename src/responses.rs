@@ -20,7 +20,7 @@ impl IntoResponse for ServerResponse {
     fn into_response(self) -> axum::response::Response {
         match self {
             ServerResponse::Success(code) => {
-                let body = Json(json!({"status": "error"}));
+                let body = Json(json!({"status": "success"}));
                 (code, body).into_response()
             }
         }
