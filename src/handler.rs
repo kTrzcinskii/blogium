@@ -1,8 +1,14 @@
 use std::path::Path;
 
-use axum::{extract::State, http};
+use axum::{
+    body::Body,
+    extract::{self, State},
+    http,
+    response::IntoResponse,
+};
 use axum_typed_multipart::TypedMultipart;
 use tokio::fs;
+use tokio_util::io::ReaderStream;
 use uuid::Uuid;
 
 use crate::{
@@ -10,12 +16,10 @@ use crate::{
     state::ArcAppState,
 };
 
-type ServerResult = Result<ServerResponse, ServerError>;
-
 pub async fn create_post_handler(
     State(app_state): State<ArcAppState>,
     TypedMultipart(body): TypedMultipart<CreatePostSchema>,
-) -> ServerResult {
+) -> Result<impl IntoResponse, ServerError> {
     let mut transaction = app_state.db.begin().await?;
 
     let images_upload_dir = Path::new(config::IMAGE_UPLOADS_DIR);
@@ -47,4 +51,23 @@ pub async fn create_post_handler(
     transaction.commit().await?;
 
     Ok(ServerResponse::Success(http::StatusCode::CREATED))
+}
+
+pub async fn get_image_handler(
+    extract::Path(id): extract::Path<String>,
+) -> Result<impl IntoResponse, ServerError> {
+    let images_upload_dir = Path::new(config::IMAGE_UPLOADS_DIR);
+    let image_path = images_upload_dir.join(Path::new(&id));
+    let file = fs::File::open(&image_path)
+        .await
+        .map_err(|_| ServerError::NotFound("Image not found".into()))?;
+    let content_type = mime_guess::from_path(&image_path)
+        .first_raw()
+        // TODO: isn't it some security breach?
+        .unwrap_or("images/jpeg");
+    let stream = ReaderStream::new(file);
+    let body = Body::from_stream(stream);
+    let headers = [(http::header::CONTENT_TYPE, content_type)];
+
+    Ok((headers, body))
 }

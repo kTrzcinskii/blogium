@@ -8,6 +8,7 @@ use tokio::io;
 pub enum ServerError {
     Database(String),
     FileSystem(String),
+    NotFound(String),
 }
 
 impl Display for ServerError {
@@ -15,6 +16,7 @@ impl Display for ServerError {
         match self {
             ServerError::Database(e) => write!(f, "Database error: {}", e),
             ServerError::FileSystem(e) => write!(f, "FileSystem error: {}", e),
+            ServerError::NotFound(e) => write!(f, "NotFound error: {}", e),
         }
     }
 }
@@ -24,6 +26,7 @@ impl IntoResponse for ServerError {
         let (status_code, error_msg) = match self {
             ServerError::Database(e) => (http::StatusCode::INTERNAL_SERVER_ERROR, e),
             ServerError::FileSystem(e) => (http::StatusCode::INTERNAL_SERVER_ERROR, e),
+            ServerError::NotFound(e) => (http::StatusCode::NOT_FOUND, e),
         };
         let body = Json(json!({"status": "error", "message": format!("{:?}", error_msg)}));
         (status_code, body).into_response()
