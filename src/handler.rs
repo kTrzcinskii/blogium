@@ -1,12 +1,16 @@
-use axum::{extract::State, http, response::IntoResponse};
+use axum::{extract::State, http};
 use axum_typed_multipart::TypedMultipart;
 
-use crate::{errors::ServerError, schema::CreatePostSchema, state::ArcAppState};
+use crate::{
+    errors::ServerError, responses::ServerResponse, schema::CreatePostSchema, state::ArcAppState,
+};
+
+type ServerResult = Result<ServerResponse, ServerError>;
 
 pub async fn create_post_handler(
     State(app_state): State<ArcAppState>,
     TypedMultipart(body): TypedMultipart<CreatePostSchema>,
-) -> Result<impl IntoResponse, ServerError> {
+) -> ServerResult {
     // TODO: handle images
     println!("BODY: {:?}", body);
 
@@ -17,7 +21,7 @@ pub async fn create_post_handler(
         .await;
 
     match result {
-        Ok(_) => Ok(http::StatusCode::CREATED),
+        Ok(_) => Ok(ServerResponse::Success(http::StatusCode::CREATED)),
         Err(e) => Err(e.into()),
     }
 }
