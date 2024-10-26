@@ -4,11 +4,13 @@ use axum::{http, response::IntoResponse, Json};
 use serde_json::json;
 use tokio::io;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ServerError {
     Database(String),
     FileSystem(String),
     NotFound(String),
+    BadRequest(String),
+    InternalServerError(String),
 }
 
 impl Display for ServerError {
@@ -17,6 +19,8 @@ impl Display for ServerError {
             ServerError::Database(e) => write!(f, "Database error: {}", e),
             ServerError::FileSystem(e) => write!(f, "FileSystem error: {}", e),
             ServerError::NotFound(e) => write!(f, "NotFound error: {}", e),
+            ServerError::BadRequest(e) => write!(f, "BadRequest error: {}", e),
+            ServerError::InternalServerError(e) => write!(f, "InternalServerError: {}", e),
         }
     }
 }
@@ -27,6 +31,8 @@ impl IntoResponse for ServerError {
             ServerError::Database(e) => (http::StatusCode::INTERNAL_SERVER_ERROR, e),
             ServerError::FileSystem(e) => (http::StatusCode::INTERNAL_SERVER_ERROR, e),
             ServerError::NotFound(e) => (http::StatusCode::NOT_FOUND, e),
+            ServerError::BadRequest(e) => (http::StatusCode::BAD_REQUEST, e),
+            ServerError::InternalServerError(e) => (http::StatusCode::INTERNAL_SERVER_ERROR, e),
         };
         let body = Json(json!({"status": "error", "message": format!("{:?}", error_msg)}));
         (status_code, body).into_response()

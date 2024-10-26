@@ -2,8 +2,7 @@
 
 CREATE TABLE images (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    uuid TEXT NOT NULL,
-    file_name TEXT
+    uuid TEXT NOT NULL
 );
 
 CREATE TABLE posts (
