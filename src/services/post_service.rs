@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use sqlx::SqliteConnection;
 
 use crate::{
@@ -52,5 +53,13 @@ impl PostService {
         .execute(conn)
         .await?;
         Ok(response.last_insert_rowid())
+    }
+
+    pub async fn get_posts_list(
+        conn: &mut SqliteConnection,
+        limit: usize,
+        cursor: DateTime<Utc>,
+    ) -> Result<Vec<PostModel>, ServerError> {
+        todo!()
     }
 }

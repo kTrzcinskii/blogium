@@ -2,11 +2,12 @@ use std::{mem, path::Path};
 
 use axum::{
     body::Body,
-    extract::{self, State},
+    extract::{self, Query, State},
     http,
     response::IntoResponse,
 };
 use axum_typed_multipart::TypedMultipart;
+use chrono::Utc;
 use reqwest::Client;
 use tokio::fs;
 use tokio_util::io::ReaderStream;
@@ -14,12 +15,14 @@ use tokio_util::io::ReaderStream;
 use crate::{
     config,
     errors::ServerError,
+    models::post_model::PostResponse,
     responses::ServerResponse,
-    schema::CreatePostSchema,
+    schemas::{post_schema::CreatePostSchema, utils::QueryOptions},
     services::{image_service::ImageService, post_service::PostService},
     state::ArcAppState,
 };
 
+// TODO: split into image handler and post handler
 pub async fn create_post_handler(
     State(app_state): State<ArcAppState>,
     TypedMultipart(mut body): TypedMultipart<CreatePostSchema>,
@@ -93,4 +96,29 @@ pub async fn get_image_handler(
     let headers = [(http::header::CONTENT_TYPE, content_type)];
 
     Ok((headers, body))
+}
+
+pub async fn get_posts_list_handler(
+    State(app_state): State<ArcAppState>,
+    query_options: Option<Query<QueryOptions>>,
+) -> Result<impl IntoResponse, ServerError> {
+    let Query(query) = query_options.unwrap_or_default();
+    let limit = query
+        .limit
+        .unwrap_or(config::DEAFULT_LIST_LIMIT)
+        .min(config::MAX_LIST_LIMIT);
+    let cursor = query.cursor.unwrap_or(Utc::now());
+
+    let mut transaction = app_state.db.begin().await?;
+    let post_list = PostService::get_posts_list(&mut transaction, limit, cursor).await?;
+
+    let mut post_response_list: Vec<PostResponse> = Vec::with_capacity(post_list.len());
+    for post in &post_list {
+        post_response_list
+            .push(PostService::transform_model_to_response(&mut transaction, post).await?);
+    }
+    transaction.commit().await?;
+
+    let next_cursor = post_response_list.last().map(|post| post.posted_at);
+    Ok(ServerResponse::List(post_response_list, next_cursor))
 }
