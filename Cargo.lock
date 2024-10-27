@@ -229,6 +229,7 @@ dependencies = [
  "anyhow",
  "axum",
  "axum_typed_multipart",
+ "bytes",
  "chrono",
  "mime_guess",
  "reqwest",

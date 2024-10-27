@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{mem, path::Path};
 
 use axum::{
     body::Body,
@@ -10,39 +10,29 @@ use axum_typed_multipart::TypedMultipart;
 use reqwest::Client;
 use tokio::fs;
 use tokio_util::io::ReaderStream;
-use uuid::Uuid;
 
 use crate::{
-    config, errors::ServerError, responses::ServerResponse, schema::CreatePostSchema,
+    config,
+    errors::ServerError,
+    responses::ServerResponse,
+    schema::CreatePostSchema,
+    services::{image_service::ImageService, post_service::PostService},
     state::ArcAppState,
 };
 
 pub async fn create_post_handler(
     State(app_state): State<ArcAppState>,
-    TypedMultipart(body): TypedMultipart<CreatePostSchema>,
+    TypedMultipart(mut body): TypedMultipart<CreatePostSchema>,
 ) -> Result<impl IntoResponse, ServerError> {
     let mut transaction = app_state.db.begin().await?;
 
-    let images_upload_dir = Path::new(config::IMAGE_UPLOADS_DIR);
+    let post_image_id = if let Some(image_data) = body.image {
+        Some(ImageService::create_new_image_entry(&mut transaction, image_data.contents).await?)
+    } else {
+        None
+    };
 
-    // TODO: should probably extract common logic of inserting image to some function
-    // Handle post image
-    let mut post_image_id: Option<i64> = None;
-    if let Some(image_data) = body.image {
-        let id = Uuid::new_v4().to_string();
-        let file_path = images_upload_dir.join(Path::new(&id));
-        let content = image_data.contents;
-        fs::write(file_path, content).await?;
-        let response = sqlx::query(r#"INSERT INTO images (uuid) VALUES (?)"#)
-            .bind(id)
-            .execute(&mut *transaction)
-            .await?;
-        post_image_id = Some(response.last_insert_rowid());
-    }
-
-    // Handle user avatar
-    let mut user_avatar_id: Option<i64> = None;
-    if let Some(avatar_url) = body.avatar_path {
+    let user_avatar_id = if let Some(avatar_url) = body.avatar_path {
         let client = Client::new();
         let error = ServerError::BadRequest("Couldn't download avatar from provided url".into());
         let avatar_response = client
@@ -69,23 +59,18 @@ pub async fn create_post_handler(
             .bytes()
             .await
             .map_err(|e| ServerError::InternalServerError(e.to_string()))?;
-        let id = Uuid::new_v4().to_string();
-        let avatar_path = images_upload_dir.join(Path::new(&id));
-        fs::write(avatar_path, bytes).await?;
-        let response = sqlx::query(r#"INSERT INTO images (uuid) VALUES (?)"#)
-            .bind(id)
-            .execute(&mut *transaction)
-            .await?;
-        user_avatar_id = Some(response.last_insert_rowid());
-    }
-
-    sqlx::query(r#"INSERT INTO posts (username, content, post_image_id, user_avatar_id) VALUES (?, ?, ?, ?)"#)
-        .bind(body.username)
-        .bind(body.content)
-        .bind(post_image_id)
-        .bind(user_avatar_id)
-        .execute(&mut *transaction)
-        .await?;
+        Some(ImageService::create_new_image_entry(&mut transaction, bytes).await?)
+    } else {
+        None
+    };
+    PostService::create_new_post_entry(
+        &mut transaction,
+        mem::take(&mut body.username),
+        mem::take(&mut body.content),
+        post_image_id,
+        user_avatar_id,
+    )
+    .await?;
 
     transaction.commit().await?;
 
