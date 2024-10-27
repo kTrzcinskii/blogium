@@ -1,6 +1,6 @@
 pub mod config;
 pub mod errors;
-pub mod handler;
+pub mod handlers;
 pub mod models;
 pub mod responses;
 pub mod route;

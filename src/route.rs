@@ -5,11 +5,15 @@ use axum::{
     Router,
 };
 
-use crate::{handler, state::AppState};
+use crate::{
+    handlers::{image_handler::ImageHandler, post_handler::PostHandler},
+    state::AppState,
+};
 
 pub fn create_router(app_state: Arc<AppState>) -> Router {
     Router::new()
-        .route("/api/posts/create", post(handler::create_post_handler))
-        .route("/api/images/:uuid", get(handler::get_image_handler))
+        .route("/api/posts", get(PostHandler::get_posts_list_handler))
+        .route("/api/posts/create", post(PostHandler::create_post_handler))
+        .route("/api/images/:uuid", get(ImageHandler::get_image_handler))
         .with_state(app_state)
 }
