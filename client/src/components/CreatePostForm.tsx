@@ -48,7 +48,7 @@ const CreatePostForm = () => {
         <Form {...form}>
             <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="mx-auto w-4/5 lg:w-1/3 space-y-6"
+                className="mx-auto w-4/5 lg:w-[700px] space-y-6"
             >
                 <FormField
                     control={form.control}

@@ -28,11 +28,21 @@ const createPost = async (
         formData.append('avatar_path', data.avatarUrl);
     }
 
-    const response = await axios.post<ICreatePostResponse>(
-        createPostUrl,
-        formData,
-    );
-    return response.data;
+    try {
+        const response = await axios.post<ICreatePostResponse>(
+            createPostUrl,
+            formData,
+        );
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            const fetchError = error.response.data as ICreatePostError;
+            if (fetchError.status === 'error' && fetchError.message) {
+                throw fetchError;
+            }
+        }
+        throw new Error('An unexpected error occurred');
+    }
 };
 
 export const useCreatePostMutation = (): UseMutationResult<
