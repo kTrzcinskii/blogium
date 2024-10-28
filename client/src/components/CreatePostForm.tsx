@@ -27,16 +27,25 @@ export type ICreatePostInput = z.infer<typeof CreatePostInputSchema>;
 const CreatePostForm = () => {
     const form = useForm<ICreatePostInput>({
         resolver: zodResolver(CreatePostInputSchema),
+        defaultValues: {
+            username: '',
+            content: '',
+            image: undefined,
+            avatarUrl: '',
+        },
     });
 
+    // TODO: invalidate query when post is created
     const { mutate } = useCreatePostMutation();
 
     const imageRef = form.register('image');
 
     const onSubmit = (data: ICreatePostInput) => {
         mutate(data, {
+            // TODO: remove this console logs
             onSuccess: (data) => {
                 console.log(data);
+                form.reset();
             },
             onError: (err) => {
                 console.log(err);
