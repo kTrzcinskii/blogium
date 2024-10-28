@@ -15,12 +15,12 @@ impl ImageService {
         image_id: i64,
     ) -> Result<String, ServerError> {
         let result: Result<ImageModel, ServerError> =
-            sqlx::query_as("SELECT uuid FROM images WHERE id = $1")
+            sqlx::query_as("SELECT * FROM images WHERE id = $1")
                 .bind(image_id)
                 .fetch_one(conn)
                 .await
                 .map_err(|e| e.into());
-        result.map(|opt| opt.uuid)
+        result.map(|im| format!("/api/images/{}", im.uuid))
     }
 
     /// Creates new file with image contents and inserts new record into db

@@ -3,14 +3,12 @@ use std::fmt::{Debug, Display};
 use axum::{http, response::IntoResponse, Json};
 use serde_json::json;
 
-use crate::models::post_model::PostResponse;
-
-type ListCursor = chrono::DateTime<chrono::Utc>;
+use crate::{models::post_model::PostResponse, schemas::utils::QueryCursor};
 
 #[derive(Debug)]
 pub enum ServerResponse {
     Success(http::StatusCode),
-    List(Vec<PostResponse>, Option<ListCursor>),
+    List(Vec<PostResponse>, Option<QueryCursor>),
 }
 
 impl Display for ServerResponse {

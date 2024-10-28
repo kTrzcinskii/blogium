@@ -6,7 +6,7 @@ pub struct PostModel {
     pub id: i64,
     pub username: String,
     pub content: String,
-    pub posted_at: chrono::DateTime<chrono::Utc>,
+    pub posted_at: chrono::NaiveDateTime,
     pub post_image_id: Option<i64>,
     pub user_avatar_id: Option<i64>,
 }
@@ -15,7 +15,7 @@ pub struct PostModel {
 pub struct PostResponse {
     pub username: String,
     pub content: String,
-    pub posted_at: chrono::DateTime<chrono::Utc>,
+    pub posted_at: chrono::NaiveDateTime,
     pub post_image_url: Option<String>,
     pub user_avatar_url: Option<String>,
 }

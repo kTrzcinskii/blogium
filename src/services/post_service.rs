@@ -1,14 +1,19 @@
-use chrono::{DateTime, Utc};
 use sqlx::SqliteConnection;
 
 use crate::{
     errors::ServerError,
     models::post_model::{PostModel, PostResponse},
+    schemas::utils::QueryCursor,
 };
 
 use super::image_service::ImageService;
 
 pub struct PostService;
+
+pub struct ListData {
+    pub list: Vec<PostModel>,
+    pub has_next_page: bool,
+}
 
 impl PostService {
     pub async fn transform_model_to_response(
@@ -58,8 +63,22 @@ impl PostService {
     pub async fn get_posts_list(
         conn: &mut SqliteConnection,
         limit: usize,
-        cursor: DateTime<Utc>,
-    ) -> Result<Vec<PostModel>, ServerError> {
-        todo!()
+        cursor: QueryCursor,
+    ) -> Result<ListData, ServerError> {
+        let response: Vec<PostModel> = sqlx::query_as(
+            "SELECT * FROM posts WHERE posted_at < $1 ORDER BY posted_at DESC LIMIT $2",
+        )
+        .bind(cursor)
+        .bind((limit + 1) as i32)
+        .fetch_all(conn)
+        .await
+        .map_err(|e| ServerError::Database(e.to_string()))?;
+
+        let has_next_page = response.len() == limit + 1;
+        let list = response.into_iter().take(limit).collect();
+        Ok(ListData {
+            list,
+            has_next_page,
+        })
     }
 }

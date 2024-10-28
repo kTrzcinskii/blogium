@@ -89,19 +89,23 @@ impl PostHandler {
             .limit
             .unwrap_or(config::DEAFULT_LIST_LIMIT)
             .min(config::MAX_LIST_LIMIT);
-        let cursor = query.cursor.unwrap_or(Utc::now());
+        let cursor = query.cursor.unwrap_or(Utc::now().naive_utc());
 
         let mut transaction = app_state.db.begin().await?;
-        let post_list = PostService::get_posts_list(&mut transaction, limit, cursor).await?;
+        let post_list_data = PostService::get_posts_list(&mut transaction, limit, cursor).await?;
 
-        let mut post_response_list: Vec<PostResponse> = Vec::with_capacity(post_list.len());
-        for post in &post_list {
+        let mut post_response_list: Vec<PostResponse> =
+            Vec::with_capacity(post_list_data.list.len());
+        for post in &post_list_data.list {
             post_response_list
                 .push(PostService::transform_model_to_response(&mut transaction, post).await?);
         }
         transaction.commit().await?;
 
-        let next_cursor = post_response_list.last().map(|post| post.posted_at);
+        let next_cursor = post_list_data
+            .has_next_page
+            .then(|| post_response_list.last().map(|p| p.posted_at))
+            .flatten();
         Ok(ServerResponse::List(post_response_list, next_cursor))
     }
 }
