@@ -85,7 +85,6 @@ const CreatePostForm = () => {
                                     {...field}
                                 />
                             </FormControl>
-                            {/* TODO: make this actually true */}
                             <FormDescription>
                                 You can use markdown syntax, e.g.{' '}
                                 <span>{'# Title'}</span>,{' '}

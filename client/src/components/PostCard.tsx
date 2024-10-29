@@ -1,5 +1,7 @@
 import { IPostResponse } from '@/api/queries/useFetchPosts';
 import { format } from 'date-fns';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 import {
     Card,
@@ -39,8 +41,8 @@ const PostCard = ({
                 </CardTitle>
                 <CardDescription>Posted at {postedAt}</CardDescription>
             </CardHeader>
-            <CardContent>
-                <p>{content}</p>
+            <CardContent className="prose prose-base prose-indigo max-w-none">
+                <Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown>
             </CardContent>
             {post_image_url && (
                 <CardFooter>
