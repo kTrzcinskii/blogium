@@ -26,7 +26,7 @@ const PostCard = ({
     const avatarUrl = `${API_URL}${user_avatar_url}`;
     const imageUrl = `${API_URL}${post_image_url}`;
     return (
-        <Card className="mx-auto w-4/5 lg:w-[850px]">
+        <Card className="w-full">
             <CardHeader>
                 <CardTitle>
                     <div className="flex flex-row items-center space-x-2">

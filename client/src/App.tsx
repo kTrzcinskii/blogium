@@ -4,8 +4,10 @@ import PostsList from './components/PostsList';
 function App() {
     return (
         <div className="w-full h-screen">
-            <CreatePostForm />
-            <PostsList />
+            <div className="mx-auto w-4/5 lg:w-[650px]">
+                <CreatePostForm />
+                <PostsList />
+            </div>
         </div>
     );
 }
