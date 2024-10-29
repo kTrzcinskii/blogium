@@ -14,6 +14,9 @@ import {
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { useCreatePostMutation } from '@/api/mutations/useCreatePostMutation';
+import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 
 const CreatePostInputSchema = z.object({
     username: z.string().min(1, 'Username is required'),
@@ -34,21 +37,29 @@ const CreatePostForm = () => {
             avatarUrl: '',
         },
     });
-
-    // TODO: invalidate query when post is created
-    const { mutate } = useCreatePostMutation();
+    const { mutate, isPending } = useCreatePostMutation();
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
 
     const imageRef = form.register('image');
 
     const onSubmit = (data: ICreatePostInput) => {
         mutate(data, {
-            // TODO: remove this console logs
-            onSuccess: (data) => {
-                console.log(data);
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['posts'] });
                 form.reset();
+                toast({
+                    title: 'Post created successfully!',
+                    className: 'bg-green-400 text-white',
+                });
             },
-            onError: (err) => {
-                console.log(err);
+            onError: () => {
+                toast({
+                    title: 'Something went wrong.',
+                    description:
+                        'There was a problem with creating new post. Please try again later.',
+                    className: 'bg-red-400 text-white',
+                });
             },
         });
     };
@@ -136,7 +147,16 @@ const CreatePostForm = () => {
                     )}
                 />
 
-                <Button type="submit">Create Post</Button>
+                <Button type="submit" disabled={isPending}>
+                    {isPending ? (
+                        <div className="flex flex-row space-x-1">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <p>Creating post...</p>
+                        </div>
+                    ) : (
+                        'Create Post'
+                    )}
+                </Button>
             </form>
         </Form>
     );
