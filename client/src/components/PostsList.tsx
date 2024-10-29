@@ -1,12 +1,23 @@
 import { useFetchPosts } from '@/api/queries/useFetchPosts';
 import PostCard from './PostCard';
+import PostCardSkeleton from './PostCardSkeleton';
+import { POST_FETCH_COUNT_LIMIT } from '@/const';
 
 const PostsList = () => {
     const { data, fetchNextPage, hasNextPage, status, isFetchingNextPage } =
         useFetchPosts();
 
     if (status === 'pending') {
-        return <div>TODO: add loader</div>;
+        return (
+            <div className="space-y-7 py-7">
+                {Array.from(
+                    { length: Math.max(POST_FETCH_COUNT_LIMIT / 2, 10) },
+                    (_, index) => (
+                        <PostCardSkeleton key={index} />
+                    ),
+                )}
+            </div>
+        );
     }
 
     if (status === 'error') {
