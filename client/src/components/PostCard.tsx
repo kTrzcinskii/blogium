@@ -15,18 +15,23 @@ import { Avatar, AvatarFallback } from './ui/avatar';
 import { AvatarImage } from '@radix-ui/react-avatar';
 import { API_URL } from '@/const';
 
+interface IPostCardProps extends IPostResponse {
+    lastElementRef: (node: HTMLDivElement) => void;
+}
+
 const PostCard = ({
     username,
     content,
     posted_at,
     post_image_url,
     user_avatar_url,
-}: IPostResponse) => {
+    lastElementRef,
+}: IPostCardProps) => {
     const postedAt = format(new Date(posted_at), 'dd-MM-yyyy, HH:mm');
     const avatarUrl = `${API_URL}${user_avatar_url}`;
     const imageUrl = `${API_URL}${post_image_url}`;
     return (
-        <Card className="w-full">
+        <Card className="w-full" ref={lastElementRef}>
             <CardHeader>
                 <CardTitle>
                     <div className="flex flex-row items-center space-x-2">

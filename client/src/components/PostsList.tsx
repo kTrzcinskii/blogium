@@ -34,7 +34,6 @@ const PostsList = () => {
                     hasNextPage &&
                     !isFetchingNextPage
                 ) {
-                    console.log('fetching new page');
                     fetchNextPage();
                 }
             });
@@ -77,12 +76,11 @@ const PostsList = () => {
             {data.pages.map((page) =>
                 page.data.map((post) => {
                     return (
-                        <div ref={lastElementRef}>
-                            <PostCard
-                                key={`${post.posted_at}-${post.username}`}
-                                {...post}
-                            />
-                        </div>
+                        <PostCard
+                            key={`${post.posted_at}-${post.username}`}
+                            {...post}
+                            lastElementRef={lastElementRef}
+                        />
                     );
                 }),
             )}
