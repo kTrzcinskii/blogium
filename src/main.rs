@@ -9,7 +9,7 @@ use tower_http::{cors, trace::TraceLayer};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let pool = SqlitePool::connect(&APP_CONFIG.db_url)
+    let pool = SqlitePool::connect(&APP_CONFIG.database_url)
         .await
         .context("Cannot connect to database")?;
 

@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  blogium-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    volumes:
+      - sqlite_data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///app/data/database.sqlite
+      - IMAGE_UPLOADS_DIR=./uploads/images
+      - FRONTEND_URL=http://localhost:5173
+    ports:
+      - "3000:3000"
+
+  blogium-frontend:
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile.frontend
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    ports:
+      - "5173:5173"
+
+volumes:
+  sqlite_data:
+    driver: local

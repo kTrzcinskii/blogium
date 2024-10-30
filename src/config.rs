@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 pub struct Config {
     pub image_uploads_dir: String,
     pub request_body_limit: usize,
-    pub db_url: String,
+    pub database_url: String,
     pub server_addr: String,
     pub frontend_url: String,
     pub default_list_limit: usize,
@@ -23,7 +23,7 @@ pub static APP_CONFIG: Lazy<Config> = Lazy::new(|| {
                 .expect("Failed to parse REQUEST_BODY_LIMIT")
         })
         .unwrap_or(1024 * 1024 * 5); // Default is 5Mib
-    let db_url = env::var("DB_URL").expect("DB_URL must be set in .env");
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set in .env");
     let server_addr = env::var("SERVER_ADDR").unwrap_or("0.0.0.0:3000".into());
     let frontend_url = env::var("FRONTEND_URL").expect("FRONTEND_URL must be set in .env");
     let default_list_limit = env::var("DEFAULT_LIST_LIMIT")
@@ -42,7 +42,7 @@ pub static APP_CONFIG: Lazy<Config> = Lazy::new(|| {
     Config {
         image_uploads_dir,
         request_body_limit,
-        db_url,
+        database_url,
         server_addr,
         frontend_url,
         default_list_limit,

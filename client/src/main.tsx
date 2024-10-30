@@ -20,7 +20,7 @@ const router = createBrowserRouter([
         path: '/home',
         element: <App />,
     },
-    // TOOD: add some 404 page
+    // TODO: add some 404 page
 ]);
 
 const queryClient = new QueryClient();

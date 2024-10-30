@@ -40,6 +40,7 @@ const createPost = async (
                 throw fetchError;
             }
         }
+        // TODO: better handle case when updated file with too big size
         throw new Error('An unexpected error occurred');
     }
 };
