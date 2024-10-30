@@ -12,7 +12,10 @@ RUN cargo install sqlx-cli --no-default-features --features sqlite
 # Create a new empty shell project
 WORKDIR /usr/src/app
 
-COPY . .
+COPY ./src ./src
+COPY ./Cargo.lock .
+COPY ./Cargo.toml .
+COPY ./migrations ./migrations
 
 # Build with SQLx offline mode to avoid database connection during build
 ENV SQLX_OFFLINE=true
@@ -35,7 +38,7 @@ COPY --from=builder /usr/src/app/target/release/blogium /app/blogium
 COPY --from=builder /usr/src/app/migrations /app/migrations
 COPY --from=builder /usr/local/cargo/bin/sqlx /usr/local/bin/sqlx
 
-# Create data directory for SQLite
+# Create data directory for SQLite and images
 RUN mkdir -p /app/data
 
 # Create initial empty database

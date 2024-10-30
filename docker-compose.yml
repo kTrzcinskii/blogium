@@ -6,10 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     volumes:
-      - sqlite_data:/app/data
+      - blogium_data:/app/data
     environment:
       - DATABASE_URL=sqlite:///app/data/database.sqlite
-      - IMAGE_UPLOADS_DIR=./uploads/images
+      - IMAGE_UPLOADS_DIR=/app/data/uploads/images
       - FRONTEND_URL=http://localhost:5173
     ports:
       - "3000:3000"
@@ -24,5 +24,5 @@ services:
       - "5173:5173"
 
 volumes:
-  sqlite_data:
+  blogium_data:
     driver: local
