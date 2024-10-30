@@ -10,6 +10,7 @@ import App from './App.tsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from './components/ui/toaster.tsx';
+import NotFound from './components/NotFound.tsx';
 
 const router = createBrowserRouter([
     {
@@ -20,7 +21,10 @@ const router = createBrowserRouter([
         path: '/home',
         element: <App />,
     },
-    // TODO: add some 404 page
+    {
+        path: '*',
+        element: <NotFound />,
+    },
 ]);
 
 const queryClient = new QueryClient();
