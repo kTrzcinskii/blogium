@@ -10,7 +10,7 @@ use chrono::Utc;
 use reqwest::Client;
 
 use crate::{
-    config,
+    config::APP_CONFIG,
     errors::ServerError,
     models::post_model::PostResponse,
     responses::ServerResponse,
@@ -87,8 +87,8 @@ impl PostHandler {
         let Query(query) = query_options.unwrap_or_default();
         let limit = query
             .limit
-            .unwrap_or(config::DEAFULT_LIST_LIMIT)
-            .min(config::MAX_LIST_LIMIT);
+            .unwrap_or(APP_CONFIG.default_list_limit)
+            .min(APP_CONFIG.max_list_limit);
         let cursor = query.cursor.unwrap_or(Utc::now().naive_utc());
 
         let mut transaction = app_state.db.begin().await?;

@@ -4,7 +4,7 @@ use axum::{body::Body, extract, http, response::IntoResponse};
 use tokio::fs;
 use tokio_util::io::ReaderStream;
 
-use crate::{config, errors::ServerError};
+use crate::{config::APP_CONFIG, errors::ServerError};
 
 pub struct ImageHandler;
 
@@ -12,7 +12,7 @@ impl ImageHandler {
     pub async fn get_image_handler(
         extract::Path(id): extract::Path<String>,
     ) -> Result<impl IntoResponse, ServerError> {
-        let images_upload_dir = Path::new(config::IMAGE_UPLOADS_DIR);
+        let images_upload_dir = Path::new(&APP_CONFIG.image_uploads_dir);
         let image_path = images_upload_dir.join(Path::new(&id));
         let file = fs::File::open(&image_path)
             .await

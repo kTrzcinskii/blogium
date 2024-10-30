@@ -1,3 +1,4 @@
 /target
 blogium_db*
 /uploads
+.env

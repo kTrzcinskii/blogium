@@ -5,7 +5,7 @@ use sqlx::SqliteConnection;
 use tokio::fs;
 use uuid::Uuid;
 
-use crate::{config, errors::ServerError, models::image_model::ImageModel};
+use crate::{config::APP_CONFIG, errors::ServerError, models::image_model::ImageModel};
 
 pub struct ImageService;
 
@@ -39,7 +39,7 @@ impl ImageService {
     }
 
     async fn create_image_file(uuid: &str, content: Bytes) -> Result<(), ServerError> {
-        let images_upload_dir = Path::new(config::IMAGE_UPLOADS_DIR);
+        let images_upload_dir = Path::new(&APP_CONFIG.image_uploads_dir);
         let file_path = images_upload_dir.join(Path::new(uuid));
         fs::write(file_path, content).await?;
         Ok(())
