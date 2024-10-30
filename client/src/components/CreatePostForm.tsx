@@ -53,11 +53,10 @@ const CreatePostForm = () => {
                     className: 'bg-green-400 text-white',
                 });
             },
-            onError: () => {
+            onError: (e) => {
                 toast({
                     title: 'Something went wrong.',
-                    description:
-                        'There was a problem with creating new post. Please try again later.',
+                    description: `There was a problem with creating new post. Please try again later. (${e.message})`,
                     className: 'bg-red-400 text-white',
                 });
             },
@@ -119,7 +118,7 @@ const CreatePostForm = () => {
                                 <Input
                                     type="file"
                                     {...imageRef}
-                                    accept="image/*"
+                                    accept="image/png"
                                 />
                             </FormControl>
                             <FormDescription>
@@ -142,6 +141,9 @@ const CreatePostForm = () => {
                                     {...field}
                                 />
                             </FormControl>
+                            <FormDescription>
+                                Only accepts images in PNG format.
+                            </FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}

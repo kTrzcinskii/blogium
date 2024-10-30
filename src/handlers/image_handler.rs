@@ -17,9 +17,7 @@ impl ImageHandler {
         let file = fs::File::open(&image_path)
             .await
             .map_err(|_| ServerError::NotFound("Image not found".into()))?;
-        let content_type = mime_guess::from_path(&image_path)
-            .first_raw()
-            .unwrap_or("images/jpeg");
+        let content_type = "image/png";
         let stream = ReaderStream::new(file);
         let body = Body::from_stream(stream);
         let headers = [(http::header::CONTENT_TYPE, content_type)];

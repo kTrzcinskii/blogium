@@ -53,9 +53,9 @@ impl PostHandler {
                     "Provided url misses content type header".into(),
                 ))?;
             let content_type_value = content_type.to_str().unwrap_or_default();
-            if !content_type_value.starts_with("image/") {
+            if !content_type_value.starts_with("image/png") {
                 return Err(ServerError::BadRequest(
-                    "Provided avatar url doesn't point to image.".into(),
+                    "Provided avatar url doesn't point to png image.".into(),
                 ));
             }
             let bytes = avatar_response

@@ -22,7 +22,6 @@ const createPost = async (
     formData.append('content', data.content);
     if (data.image && data.image.length > 0) {
         formData.append('image', data.image[0]);
-        console.log(data.image[0]);
     }
     if (data.avatarUrl) {
         formData.append('avatar_path', data.avatarUrl);
