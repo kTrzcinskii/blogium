@@ -39,8 +39,14 @@ const createPost = async (
             if (fetchError.status === 'error' && fetchError.message) {
                 throw fetchError;
             }
+            if (error.status === 413) {
+                const error = {
+                    status: 'error',
+                    message: 'Uploaded file was too big',
+                };
+                throw error;
+            }
         }
-        // TODO: better handle case when updated file with too big size
         throw new Error('An unexpected error occurred');
     }
 };

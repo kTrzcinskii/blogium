@@ -44,7 +44,6 @@ const fetchPosts = async (cursor?: string): Promise<IFetchPostsResponse> => {
 };
 
 export const useFetchPosts = () => {
-    // TODO: maybe invalidate this query automatically after some time
     return useInfiniteQuery({
         queryKey: ['posts'],
         queryFn: ({ pageParam }) => fetchPosts(pageParam),
